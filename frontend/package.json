@@ -1,0 +1,49 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "clear-cache": "expo start --clear",
+    "reset-cache": "rm -rf node_modules/.cache && npx react-native start --reset-cache",
+    "clean-project": "rm -rf node_modules && npm cache clean --force && npm install && npm run clear-cache"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^14.0.4",
+    "@react-native-picker/picker": "^2.9.0",
+    "@react-navigation/bottom-tabs": "^7.2.0",
+    "@react-navigation/drawer": "^7.1.1",
+    "@react-navigation/material-top-tabs": "^7.1.0",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/stack": "^7.1.1",
+    "@reduxjs/toolkit": "^2.6.1",
+    "axios": "^1.7.9",
+    "expo": "~52.0.42",
+    "expo-camera": "^16.0.18",
+    "expo-image-picker": "^16.0.6",
+    "expo-secure-store": "^14.0.1",
+    "expo-sqlite": "~15.1.4",
+    "expo-status-bar": "~2.0.1",
+    "jwt-decode": "^4.0.0",
+    "mime": "^4.0.6",
+    "react": "18.3.1",
+    "react-dom": "^18.3.1",
+    "react-native": "0.76.8",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-mime-types": "^2.5.0",
+    "react-native-paper-dropdown": "^2.3.1",
+    "react-native-select-dropdown": "^4.0.1",
+    "react-native-swipe-list-view": "^3.2.9",
+    "react-native-swiper": "^1.6.0",
+    "react-native-toast-message": "^2.2.1",
+    "react-redux": "^9.2.0",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "private": true
+}
