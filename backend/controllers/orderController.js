@@ -175,14 +175,14 @@ export const createOrder = async (req, res) => {
 export const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id });
-    res.status(200).json({ 
-      success: true, 
-      orders 
+    res.status(200).json({
+      success: true,
+      orders
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: error.message 
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
@@ -193,22 +193,22 @@ export const getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id)
       .populate('user', 'name email')
       .populate('orderItems.product', 'product_name product_images price');
-    
+
     if (!order) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Order not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      order 
+    res.status(200).json({
+      success: true,
+      order
     });
   } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: error.message 
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
@@ -273,7 +273,7 @@ export const updateOrderStatus = async (req, res) => {
     order.orderStatus = status;
 
 
-    if (status === 'Delivered') {
+    if (status === 'Completed') {
       order.deliveredAt = Date.now();
     }
 
@@ -289,5 +289,45 @@ export const updateOrderStatus = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+
+export const getTopOrderedProducts = async (req, res) => {
+  try {
+    const topProducts = await Order.aggregate([
+      { $unwind: '$orderItems' },
+      {
+        $group: {
+          _id: '$orderItems.product',
+          totalQuantity: { $sum: '$orderItems.quantity' }
+        }
+      },
+      { $sort: { totalQuantity: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails'
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: '$_id',
+          totalQuantity: 1,
+          productDetails: { $arrayElemAt: ['$productDetails', 0] }
+        }
+      }
+    ]);
+
+
+
+    res.status(200).json({ success: true, topProducts });
+  } catch (error) {
+    console.error('Error fetching top ordered products:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch top ordered products' });
   }
 };

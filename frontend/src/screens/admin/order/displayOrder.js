@@ -6,11 +6,15 @@ import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEff
 import { getAllOrders } from '../../../redux/actions/orderActions';
 import { updateOrderStatus as updateOrderStatusAction } from '../../../redux/actions/orderActions';
 import styles from '../../../styles/screens/admin/order/displayOrderStyles';
+import { Modal, Pressable } from 'react-native';
 
 const ORDER_STATUSES = ['Processing', 'To Ship', 'To Deliver', 'Completed', 'Cancelled'];
 
 const AdminOrderScreen = ({ navigation }) => {
     const dispatch = useDispatch();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [currentOrderId, setCurrentOrderId] = useState(null);
+    const [currentOrderStatus, setCurrentOrderStatus] = useState('');
 
     // Access orders and loading/error state from Redux
     const { loading, orders, error } = useSelector(state => state.adminOrders);
@@ -63,29 +67,34 @@ const AdminOrderScreen = ({ navigation }) => {
             ))}
         </ScrollView>
     );
-
     const updateOrderStatus = (orderId, currentStatus) => {
-        Alert.alert(
-            'Update Order Status',
-            'Select new status:',
-            ORDER_STATUSES.map((status) => ({
-                text: status,
-                onPress: () => {
-                    if (status !== currentStatus) {
-                        dispatch(updateOrderStatusAction(orderId, status)) // Dispatch the Redux action
-                            .then(() => {
-                                Alert.alert('Success', 'Order status updated successfully', [{ text: 'OK' }]);
-                                setRefreshTrigger((prev) => !prev); // Toggle the refreshTrigger to re-fetch orders
-                            })
-                            .catch((error) => {
-                                Alert.alert('Error', error.message, [{ text: 'OK' }]);
-                            });
-                    }
-                },
-            })),
-            { cancelable: true }
-        );
+        setCurrentOrderId(orderId);
+        setCurrentOrderStatus(currentStatus);
+        setModalVisible(true);
     };
+
+    // const updateOrderStatus = (orderId, currentStatus) => {
+    //     Alert.alert(
+    //         'Update Order Status',
+    //         'Select new status:',
+    //         ORDER_STATUSES.map((status) => ({
+    //             text: status,
+    //             onPress: () => {
+    //                 if (status !== currentStatus) {
+    //                     dispatch(updateOrderStatusAction(orderId, status)) // Dispatch the Redux action
+    //                         .then(() => {
+    //                             Alert.alert('Success', 'Order status updated successfully', [{ text: 'OK' }]);
+    //                             setRefreshTrigger((prev) => !prev); // Toggle the refreshTrigger to re-fetch orders
+    //                         })
+    //                         .catch((error) => {
+    //                             Alert.alert('Error', error.message, [{ text: 'OK' }]);
+    //                         });
+    //                 }
+    //             },
+    //         })),
+    //         { cancelable: true }
+    //     );
+    // };
     const getStatusColor = (status) => {
         switch (status) {
             case 'Processing': return '#FFA000'; // Amber
@@ -104,11 +113,21 @@ const AdminOrderScreen = ({ navigation }) => {
             <View style={styles.orderHeader}>
                 <Text style={styles.orderNumber}>Order #{item._id.slice(-8)}</Text>
                 <TouchableOpacity
-                    style={[styles.statusBadge, { backgroundColor: getStatusColor(item.orderStatus) }]}
-                    onPress={() => updateOrderStatus(item._id, item.orderStatus)}
+                    style={[
+                        styles.statusBadge,
+                        { backgroundColor: getStatusColor(item.orderStatus) },
+                        item.orderStatus === 'Cancelled' && { opacity: 0.6 } // visually indicate it's disabled
+                    ]}
+                    onPress={() => {
+                        if (item.orderStatus !== 'Cancelled') {
+                            updateOrderStatus(item._id, item.orderStatus);
+                        }
+                    }}
+                    disabled={item.orderStatus === 'Cancelled'}
                 >
                     <Text style={styles.statusText}>{item.orderStatus}</Text>
                 </TouchableOpacity>
+
             </View>
 
             <View style={styles.orderContent}>
@@ -204,6 +223,46 @@ const AdminOrderScreen = ({ navigation }) => {
                 </View>
                 {renderStatusFilter()}
             </View>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Select Order Status</Text>
+                        {ORDER_STATUSES.map((status) => (
+                            <TouchableOpacity
+                                key={status}
+                                style={[
+                                    styles.modalOption,
+                                    currentOrderStatus === status && { backgroundColor: getStatusColor(status) }
+                                ]}
+                                onPress={() => {
+                                    if (status !== currentOrderStatus) {
+                                        dispatch(updateOrderStatusAction(currentOrderId, status))
+                                            .then(() => {
+                                                Alert.alert('Success', 'Order status updated successfully', [{ text: 'OK' }]);
+                                                setRefreshTrigger(prev => !prev); // Refresh orders
+                                            })
+                                            .catch(error => {
+                                                Alert.alert('Error', error, [{ text: 'OK' }]);
+                                            });
+                                    }
+                                    setModalVisible(false);
+                                }}
+                            >
+                                <Text style={styles.modalOptionText}>{status}</Text>
+                            </TouchableOpacity>
+                        ))}
+                        <Pressable style={styles.modalCancel} onPress={() => setModalVisible(false)}>
+                            <Text style={styles.modalCancelText}>Cancel</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
             <FlatList
                 data={filteredOrders}
                 renderItem={renderOrderItem}

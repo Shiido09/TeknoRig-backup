@@ -16,6 +16,9 @@ import {
   ORDER_UPDATE_STATUS_REQUEST,
   ORDER_UPDATE_STATUS_SUCCESS,
   ORDER_UPDATE_STATUS_FAIL,
+  GET_TOP_PRODUCTS_REQUEST,
+  GET_TOP_PRODUCTS_SUCCESS,
+  GET_TOP_PRODUCTS_FAIL,
 } from '../constants/orderConstants';
 import { getItem } from '../../services/authService';
 
@@ -196,6 +199,24 @@ export const listMyOrders = () => async (dispatch) => {
       payload: error.response && error.response.data.message 
         ? error.response.data.message 
         : error.message
+    });
+  }
+};
+
+export const getTopOrderedProducts = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_TOP_PRODUCTS_REQUEST });
+
+    const { data } = await axios.get(`${API_URL}/orders/topProducts`);
+    
+    dispatch({
+      type: GET_TOP_PRODUCTS_SUCCESS,
+      payload: data.topProducts,
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_TOP_PRODUCTS_FAIL,
+      payload: error.response?.data.message || error.message,
     });
   }
 };

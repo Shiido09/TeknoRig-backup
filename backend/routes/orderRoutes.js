@@ -4,7 +4,8 @@ import {
   getMyOrders, 
   getOrderById,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getTopOrderedProducts
 } from '../controllers/orderController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -16,6 +17,7 @@ router.get('/getAllOrders', getAllOrders);
 router.put('/:id/status',updateOrderStatus)
 // Get all orders for the logged-in user
 router.get('/myorders', protect,getMyOrders);
+router.get('/topProducts', getTopOrderedProducts);
 
 // Get a specific order by ID
 router.get('/:id', getOrderById);
