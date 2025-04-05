@@ -42,7 +42,7 @@ const AdminDashboard = ({ navigation }) => {
     const features = [
         { title: 'Manage Orders', icon: 'list', screen: 'displayOrder' },
         { title: 'Manage Products', icon: 'inventory', screen: 'displayProduct' },
-        { title: 'Manage Users', icon: 'people', screen: 'UsersScreen' },
+        { title: 'Manage Users', icon: 'people', screen: 'displayUser' },
         { title: 'Settings', icon: 'settings', screen: 'SettingsScreen' },
     ];
 

@@ -1,11 +1,12 @@
 import express from "express";
 import multer from "multer";
-import { registerUser, loginUser, getUserById, updateUser, getUserProfile, logoutUser } from "../controllers/userController.js";
+import { registerUser, loginUser, getUserById, updateUser, getUserProfile, logoutUser, getAllUsers } from "../controllers/userController.js";
 import { protect } from "../middleware/authMiddleware.js"; // Assuming you have this middleware
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" }); // Temporary storage for file uploads
 
+router.get('/getAllUsers', getAllUsers);
 router.post("/register", upload.single("avatar"), registerUser);
 router.post("/login", loginUser);
 router.post("/logout", protect, logoutUser); // Add logout endpoint

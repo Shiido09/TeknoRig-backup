@@ -7,6 +7,7 @@ import showProduct from '../screens/admin/product/showProduct';
 import displayOrder from '../screens/admin/order/displayOrder';
 import displayReview from '../screens/admin/review/displayReview';
 import dashboard from '../screens/admin/dashboard/dashboard';
+import displayUser from '../screens/admin/user/displayUser';
 
 const AdminStack = createStackNavigator();
 
@@ -16,6 +17,7 @@ const AdminNavigator = () => {
             <AdminStack.Screen name="dashboard" component={dashboard} />
             <AdminStack.Screen name="displayOrder" component={displayOrder} />
             <AdminStack.Screen name="displayProduct" component={displayProduct} />
+            <AdminStack.Screen name="displayUser" component={displayUser} />  
             <AdminStack.Screen name="displayReview" component={displayReview} />  
             <AdminStack.Screen name="addProduct" component={addProduct} />
             <AdminStack.Screen name="editProduct" component={editProduct} />

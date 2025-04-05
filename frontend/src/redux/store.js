@@ -8,6 +8,7 @@ import {
   orderUpdateStatusReducer
 } from "./reducers/orderReducers";
 import { statsReducer } from './reducers/statReducer';
+import { adminUsersReducer } from './reducers/userReducers';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     adminOrders: adminOrdersReducer, 
     orderUpdateStatus: orderUpdateStatusReducer,
     stats: statsReducer,
+    adminUsers: adminUsersReducer,
   },
 });
 
