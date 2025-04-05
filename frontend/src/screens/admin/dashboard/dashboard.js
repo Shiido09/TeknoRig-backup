@@ -1,21 +1,33 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchStats } from '../../../redux/actions/statActions'; // Import the action
+import { logout } from '../../../services/authService'; // Import the logout function
+import styles from '../../../styles/screens/admin/dashboard/dashboardStyle';
 
 const AdminDashboard = ({ navigation }) => {
-    const stats = [
-        { title: 'Total Orders', value: 120, icon: 'shopping-cart', color: '#FF9800', backgroundColor: '#FFE0B2' },
-        { title: 'Total Users', value: 50, icon: 'people', color: '#388E3C', backgroundColor: '#C8E6C9' },
-        { title: 'Total Revenue', value: '₱150,000', icon: 'attach-money', color: '#1976D2', backgroundColor: '#BBDEFB' },
-        { title: 'Total Reviews', value: 200, icon: 'rate-review', color: '#D32F2F', backgroundColor: '#FFCDD2' },
-    ];
+    const dispatch = useDispatch();
 
-    const features = [
-        { title: 'Manage Orders', icon: 'list', screen: 'displayOrder' },
-        { title: 'Manage Products', icon: 'inventory', screen: 'displayProduct' },
-        { title: 'Manage Users', icon: 'people', screen: 'UsersScreen' },
-        { title: 'Settings', icon: 'settings', screen: 'SettingsScreen' },
-    ];
+    const { loading, stats, error } = useSelector((state) => state.stats);
+
+    useEffect(() => {
+        dispatch(fetchStats()); // Fetch stats when the component mounts
+    }, [dispatch]);
+
+    const handleLogout = async () => {
+        try {
+            await logout(); // Call the logout function
+            Alert.alert('Logout Successful', 'You have been logged out.');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }], // Navigate to the login screen
+            });
+        } catch (error) {
+            Alert.alert('Logout Failed', 'An error occurred while logging out.');
+            console.error('Logout error:', error);
+        }
+    };
 
     const renderStatCard = (stat) => (
         <View key={stat.title} style={[styles.statCard, { backgroundColor: stat.backgroundColor }]}>
@@ -26,6 +38,13 @@ const AdminDashboard = ({ navigation }) => {
             </View>
         </View>
     );
+
+    const features = [
+        { title: 'Manage Orders', icon: 'list', screen: 'displayOrder' },
+        { title: 'Manage Products', icon: 'inventory', screen: 'displayProduct' },
+        { title: 'Manage Users', icon: 'people', screen: 'UsersScreen' },
+        { title: 'Settings', icon: 'settings', screen: 'SettingsScreen' },
+    ];
 
     const renderFeatureButton = (feature) => (
         <TouchableOpacity
@@ -39,84 +58,56 @@ const AdminDashboard = ({ navigation }) => {
     );
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.header}>Admin Dashboard</Text>
-            <View style={styles.statsContainer}>
-                {stats.map(renderStatCard)}
-            </View>
-            <Text style={styles.subHeader}>Features</Text>
-            <View style={styles.featuresContainer}>
-                {features.map(renderFeatureButton)}
-            </View>
-        </ScrollView>
+        <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <Text style={styles.header}>Admin Dashboard</Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#FFFFFF" />
+                ) : error ? (
+                    <Text style={styles.errorText}>{error}</Text>
+                ) : (
+                    <View style={styles.statsContainer}>
+                        {renderStatCard({
+                            title: 'Total Orders',
+                            value: stats.totalOrders,
+                            icon: 'shopping-cart',
+                            color: '#FF9800',
+                            backgroundColor: '#FFE0B2',
+                        })}
+                        {renderStatCard({
+                            title: 'Total Users',
+                            value: stats.totalUsers,
+                            icon: 'people',
+                            color: '#388E3C',
+                            backgroundColor: '#C8E6C9',
+                        })}
+                        {renderStatCard({
+                            title: 'Total Revenue',
+                            value: `₱${stats.totalRevenue}`,
+                            icon: 'attach-money',
+                            color: '#1976D2',
+                            backgroundColor: '#BBDEFB',
+                        })}
+                        {renderStatCard({
+                            title: 'Total Reviews',
+                            value: 200, // Fake data
+                            icon: 'rate-review',
+                            color: '#D32F2F',
+                            backgroundColor: '#FFCDD2',
+                        })}
+                    </View>
+                )}
+                <Text style={styles.subHeader}>Features</Text>
+                <View style={styles.featuresContainer}>
+                    {features.map(renderFeatureButton)}
+                </View>
+            </ScrollView>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <MaterialIcons name="logout" size={24} color="#FFFFFF" />
+                <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+        </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        padding: 16,
-        backgroundColor: '#121212',
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
-        marginBottom: 16,
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-    },
-    statCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 12,
-        borderRadius: 8,
-        width: '48%',
-        marginBottom: 16,
-        elevation: 4, // Adds shadow for better visibility
-    },
-    statIcon: {
-        marginRight: 12,
-    },
-    statTextContainer: {
-        flex: 1,
-    },
-    statValue: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    statTitle: {
-        fontSize: 14,
-        color: '#555555',
-    },
-    subHeader: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
-        marginBottom: 16,
-    },
-    featuresContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-    featureButton: {
-        width: '48%',
-        padding: 16,
-        backgroundColor: '#2A2A2A',
-        borderRadius: 8,
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    featureText: {
-        fontSize: 14,
-        color: '#FFFFFF',
-        marginTop: 8,
-    },
-});
 
 export default AdminDashboard;

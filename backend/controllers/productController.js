@@ -1,5 +1,7 @@
-import Product from "../models/productModel.js"; // Corrected import path
 import cloudinary from "../config/cloudinary.js"; 
+import Order from '../models/orderModel.js';
+import Product from '../models/productModel.js';
+import { User } from '../models/userModel.js';
 
 // Create a Product
 export const createProduct = async (req, res) => {
@@ -109,5 +111,36 @@ export const deleteProduct = async (req, res) => {
     res.status(200).json({ success: true, message: "Product deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+export const getAdminStats = async (req, res) => {
+  try {
+    // Total Orders
+    const totalOrders = await Order.countDocuments();
+
+    // Total Users
+    const totalUsers = await User.countDocuments();
+
+    // Total Revenue
+    const totalRevenue = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$totalPrice' },
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      totalOrders,
+      totalUsers,
+      totalRevenue: totalRevenue[0]?.totalRevenue || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch admin stats' });
   }
 };

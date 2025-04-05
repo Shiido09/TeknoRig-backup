@@ -92,6 +92,7 @@ export const getUserById = async (req, res) => {
         address: user.address,
         phoneNo: user.phoneNo,
         avatar: user.avatar,
+        isAdmin: user.isAdmin,
       },
     });
   } catch (error) {

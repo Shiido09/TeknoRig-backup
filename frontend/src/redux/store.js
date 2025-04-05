@@ -7,6 +7,7 @@ import {
   adminOrdersReducer,
   orderUpdateStatusReducer
 } from "./reducers/orderReducers";
+import { statsReducer } from './reducers/statReducer';
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     orderListMy: orderListMyReducer,
     adminOrders: adminOrdersReducer, 
     orderUpdateStatus: orderUpdateStatusReducer,
+    stats: statsReducer,
   },
 });
 

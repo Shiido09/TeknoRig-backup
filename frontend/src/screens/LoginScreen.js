@@ -32,6 +32,7 @@ const LoginScreen = ({ navigation }) => {
 
       // Navigate based on user role
       if (data.isAdmin) {
+        console.log(data.isAdmin)
         navigation.navigate('Admin'); // Navigate to admin dashboard
       } else {
         navigation.navigate('Main'); // Navigate to user main screen
